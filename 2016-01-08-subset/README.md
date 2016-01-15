@@ -74,3 +74,87 @@ simeon@RottenApple 2016-01-08-subset>zcat oclcnum_work_pairs.dat.gz | wc -l
 
 which means that we have matched to get a work id for all but 117 of the 437368 OCLC numbers we started with (99.97%).
 
+Note that the data we have includes instances of the obvious case where we have multiple instances (`bibids` and OCLC numbers) of a single work (OCLC work id). However, there are also cases where a single `bibid` MARC record includes multiple OCLC numbers, see for example:
+
+  * <https://newcatalog.library.cornell.edu/catalog/368365> "Wirtschaft und Statistik"
+ 
+which has multiple versions and supplements with different OCLC numbers. These show up in the `newAssertions.nt.gz` data:
+
+```
+simeon@RottenApple 2016-01-08-subset>zgrep 'n368365instance' newAssertions.nt.gz 
+<http://draft.ld4l.org/cornell/n368365instance168> <http://www.w3.org/2002/07/owl#sameAs> <http://www.worldcat.org/oclc/1644252> .
+<http://draft.ld4l.org/cornell/n368365instance176> <http://www.w3.org/2002/07/owl#sameAs> <http://www.worldcat.org/oclc/33144347> .
+<http://draft.ld4l.org/cornell/n368365instance177> <http://www.w3.org/2002/07/owl#sameAs> <http://www.worldcat.org/oclc/25754870> .
+<http://draft.ld4l.org/cornell/n368365instance178> <http://www.w3.org/2002/07/owl#sameAs> <http://www.worldcat.org/oclc/69678251> .
+<http://draft.ld4l.org/cornell/n368365instance179> <http://www.w3.org/2002/07/owl#sameAs> <http://www.worldcat.org/oclc/64633575> .
+<http://draft.ld4l.org/cornell/n368365instance180> <http://www.w3.org/2002/07/owl#sameAs> <http://www.worldcat.org/oclc/52542836> .
+<http://draft.ld4l.org/cornell/n368365instance181> <http://www.w3.org/2002/07/owl#sameAs> <http://www.worldcat.org/oclc/51313033> .
+```
+
+and they map to a single work even if represented as multiple matches in the `bib_work_pairs.dat.gz` file:
+
+```
+simeon@RottenApple 2016-01-08-subset>zgrep ' 368365' bib_work_pairs.dat.gz 
+378647035 368365
+378647035 368365
+378647035 368365
+378647035 368365
+378647035 368365
+378647035 368365
+378647035 368365
+378647035 368365
+378647035 368365
+378647035 368365
+378647035 368365
+378647035 368365
+378647035 368365
+```
+
+The script [`mx_analyze_workids.py`](https://github.com/zimeon/mx/blob/master/mx_analyze_workids.py) is designed to look at the bidid-workid data and, among other things, writes histogram data to its log file:
+
+```
+simeon@RottenApple 2016-01-08-subset>../../mx/mx_analyze_workids.py -v bib_work_pairs.dat.gz out.gz
+simeon@RottenApple 2016-01-08-subset>cat mx_analyze_workids.log | perl -ne 'if (m%WARNING:root:histogram: (\d+ \d+)%) { print "$1\n"; }' > histogram_of_num_works_with_given_num_bibids.dat 
+simeon@RottenApple 2016-01-08-subset>more histogram_of_num_works_with_given_num_bibids.dat 
+1 418894
+2 5983
+3 743
+4 189
+5 72
+6 32
+7 10
+8 5
+9 2
+10 3
+11 5
+12 1
+13 1
+14 1
+18 1
+28 2
+```
+
+So then, <histogram_of_num_works_with_given_num_bibids.dat> is a histgram where the first column is the number of bibids associated with (instances of) a given work, and the second column is the number of works that meet this condition. Hence we see that there are ~419k works for which we have one instance in this dataset, ~6k works for which we have two instances, etc., all way down to there being 2 works for which we have 28 instances. One of these works is:
+
+  * <http://worldcat.org/entity/work/id/682867933> "Projections of educational statistics to"
+
+and the instances in Cornell's catalog include:
+
+  * <http://newcatalog.library.cornell.edu/catalog/287484>
+  * <http://newcatalog.library.cornell.edu/catalog/291240>
+  * <http://newcatalog.library.cornell.edu/catalog/297499>
+ 
+which are all outputs from the National Center for Education Statistics although it is not really clear that they should be grouped as one work.
+
+Perhaps a clearer example is a popular physics textbook:
+
+  * <http://worldcat.org/entity/work/id/3145862> "Quantum mechanics" by Leonard Schiff
+
+where there are three instances in the subset data:
+
+  * <http://newcatalog.library.cornell.edu/catalog/80478> 1st edition
+  * <http://newcatalog.library.cornell.edu/catalog/60989> 2nd edition
+  * <http://newcatalog.library.cornell.edu/catalog/60996> 3rd edition
+
+
+
