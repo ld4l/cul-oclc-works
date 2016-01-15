@@ -74,7 +74,7 @@ simeon@RottenApple 2016-01-08-subset>zcat oclcnum_work_pairs.dat.gz | wc -l
 
 which means that we have matched to get a work id for all but 117 of the 437368 OCLC numbers we started with (99.97%).
 
-Note that the data we have includes instances of the obvious case where we have multiple instances (`bibids` and OCLC numbers) of a single work (OCLC work id). However, there are also cases where a single `bibid` MARC record includes multiple OCLC numbers, see for example:
+Note that the data we have includes instances of the obvious case where we have multiple instances (`bibids` and OCLC numbers) of a single work (OCLC work id). However, there are also cases where a single MARC record (i.e. single `bibid`) includes multiple OCLC numbers, see for example:
 
   * <https://newcatalog.library.cornell.edu/catalog/368365> "Wirtschaft und Statistik"
  
@@ -134,7 +134,7 @@ simeon@RottenApple 2016-01-08-subset>more histogram_of_num_works_with_given_num_
 28 2
 ```
 
-So then, <histogram_of_num_works_with_given_num_bibids.dat> is a histgram where the first column is the number of bibids associated with (instances of) a given work, and the second column is the number of works that meet this condition. Hence we see that there are ~419k works for which we have one instance in this dataset, ~6k works for which we have two instances, etc., all way down to there being 2 works for which we have 28 instances. One of these works is:
+The output, <histogram_of_num_works_with_given_num_bibids.dat>, is a histgram where the first column is the number of (unique) bibids associated with (instances of) a given work, and the second column is the number of works that meet this condition. Hence we see that there are ~419k works for which we have one instance in this dataset, ~6k works for which we have two instances, etc., all way down to there being 2 works for which we have 28 instances. One of these works is:
 
   * <http://worldcat.org/entity/work/id/682867933> "Projections of educational statistics to"
 
